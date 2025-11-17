@@ -13,7 +13,7 @@ public class CredencialAcceso extends Base{
     private boolean requiereReset;
     
     //Constructores
-    public CredencialAcceso(int id, String hashPassword, String salt, LocalDateTime ultimoCambio, boolean requiereReset) {
+    public CredencialAcceso(long id, String hashPassword, String salt, LocalDateTime ultimoCambio, boolean requiereReset) {
         super(id, false);
         this.hashPassword = hashPassword;
         this.salt = salt;

@@ -15,7 +15,5 @@ public interface GenericDao<T> {
     public void actualizar(T entidad) throws Exception;
 
     public void eliminar(long id) throws Exception;
-    
-    public void recuperar(long id) throws Exception;
 }
 

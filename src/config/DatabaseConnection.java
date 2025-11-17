@@ -8,7 +8,7 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/tpi"; // URL para conectar la base de datos MySQL y la base llamada tpi
     private static final String USER = "root"; // Nombre del usuario
-    private static final String PASS = "tu_contraseña"; // Contraseña del usuario
+    private static final String PASS = "admin"; // Contraseña del usuario
     
     // Bloque estático para cargar el driver JDBC una sola vez al iniciar la clase
     static {

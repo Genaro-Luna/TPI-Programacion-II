@@ -159,16 +159,4 @@ public class UsuarioDao implements GenericDao<Usuario>{
             throw new SQLException("No se pudo elimnar el usuario con ID " + id + ":" + e.getMessage(), e );
         }
     }
-    
-    @Override
-    public void recuperar(long id) throws Exception{
-        String sql = "UPDATE usuario SET eliminado = FALSE WHERE id = ?;";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-             ps.setLong(1, id);
-             ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new SQLException("No se pudo recuperar el usuario con ID " + id + ":" + e.getMessage(), e );
-        }
-    }
 }

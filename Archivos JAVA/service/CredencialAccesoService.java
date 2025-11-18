@@ -5,33 +5,39 @@ import dao.GenericDao;
 import java.util.List;
 import models.CredencialAcceso;
 
-
-public class CredencialAccesoService implements GenericService<CredencialAcceso>{
+public class CredencialAccesoService extends BaseSv implements GenericService<CredencialAcceso>{
     private final GenericDao<CredencialAcceso> credencialDao;
 
     public CredencialAccesoService(GenericDao<CredencialAcceso> credencialDao) {
         if(credencialDao == null){
-            throw new IllegalArgumentException("El domicilio no puede ser nulo");
+            throw new IllegalArgumentException("El DAO no puede ser nulo");
         }
         this.credencialDao = credencialDao;
     }
     
     @Override
-    public void insertar(CredencialAcceso credencial) throws Exception {
+    public void crear(CredencialAcceso credencial) throws Exception {
         validarCredencial(credencial);
-        credencialDao.crear(credencial);
+        
+        ejecutarTransaccion(conn -> {
+            credencialDao.crear(credencial, conn);
+        });
     }
 
     @Override
     public void actualizar(CredencialAcceso credencial) throws Exception {
         validarCredencial(credencial);
-        credencialDao.actualizar(credencial);
+        ejecutarTransaccion(conn -> {
+            credencialDao.actualizar(credencial, conn);
+        });
     }
 
     @Override
     public void eliminar(long id) throws Exception {
         validarID(id);
-        credencialDao.eliminar(id);
+        ejecutarTransaccion(conn -> {
+            credencialDao.eliminar(id, conn);
+        });
     }
 
     @Override
@@ -45,6 +51,8 @@ public class CredencialAccesoService implements GenericService<CredencialAcceso>
         return credencialDao.getAll();
     }
     
+    
+    //Valicadiones
     public void validarCredencial(CredencialAcceso credencial){
         if(credencial == null){
             throw new IllegalArgumentException("ERROR: La credencial no puede ser nula");

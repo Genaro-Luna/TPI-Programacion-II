@@ -11,35 +11,24 @@ import java.util.ArrayList;
 public class CredencialAccesoDao implements GenericDao<CredencialAcceso>{
     // Inserta una nueva credencial a la BD
     @Override
-    public void crear(CredencialAcceso entidad) throws Exception {
+    public void crear(CredencialAcceso entidad, Connection conn) throws Exception {
         String sql = "INSERT INTO credencialAcceso (id, hashPassword, salt, ultimoCambio, requiereReset) VALUES (?,?,?,?,?)";
         
-        try(Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+        try(PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, entidad.getId());
             ps.setString(2, entidad.getHashPassword());
             ps.setString(3, entidad.getSalt());
             ps.setTimestamp(4, Timestamp.valueOf(entidad.getUltimoCambio()));
             ps.setBoolean(5, entidad.isRequiereReset());
             
-            ps.executeUpdate();
-            
-            try (ResultSet generatedKeys = ps.getGeneratedKeys()){
-                if (generatedKeys.next()) {
-                    entidad.setId(generatedKeys.getLong(1));
-                    System.out.println("Credencial insertado con id: " + entidad.getId());
-                } else {
-                    throw new SQLException("La insercion de la credencial fallo");
-                }
-            }
+            ps.executeUpdate();     
         } 
     }
 
-    
+    //Buscar por ID
     @Override
     public CredencialAcceso getById(long id) throws Exception {
-        String sql = "SELECT id, hashPassword, salt, ultimoCambio, requiereReset FROM credencialAcceso WHERE id = ?";
+        String sql = "SELECT id, hashPassword, salt, ultimoCambio, requiereReset FROM credencialAcceso WHERE id = ? AND eliminado = FALSE";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
             
@@ -61,7 +50,7 @@ public class CredencialAccesoDao implements GenericDao<CredencialAcceso>{
         return null;
     }  
             
-    
+    //Mostrar todas las credenciales mientras no estén eliminadas
     @Override
     public List<CredencialAcceso> getAll() throws Exception {
         String sql = "SELECT id, hashPassword, salt, ultimoCambio, requiereReset FROM credencialAcceso WHERE eliminado = FALSE";
@@ -84,12 +73,12 @@ public class CredencialAccesoDao implements GenericDao<CredencialAcceso>{
             return credenciales;
         }
     }
-
+    
+    //Actualizar una credencial
     @Override
-    public void actualizar(CredencialAcceso entidad) throws Exception {
-        String sql = "UPDATE credencialAcceso SET hashPassword = ?, salt = ? ultimoCambio = ?, requiereReset = ? WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+    public void actualizar(CredencialAcceso entidad, Connection conn) throws Exception {
+        String sql = "UPDATE credencialAcceso SET hashPassword = ?, salt = ?, ultimoCambio = ?, requiereReset = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, entidad.getHashPassword());
             ps.setString(2, entidad.getSalt());
@@ -103,13 +92,12 @@ public class CredencialAccesoDao implements GenericDao<CredencialAcceso>{
             }    
         } 
     }
-
+    
+    //Eliminado logico de credencial
     @Override
-    public void eliminar(long id) throws Exception {
+    public void eliminar(long id, Connection conn) throws Exception {
         String sql = "UPDATE credencialAcceso SET eliminado = TRUE WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
-            
+        try (PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setLong(1, id);
             int filas = ps.executeUpdate();
             if(filas == 0) {

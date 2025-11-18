@@ -11,21 +11,19 @@ import java.util.ArrayList;
 public class UsuarioDao implements GenericDao<Usuario>{
     // Insertar o crear un nuevo entidad
     @Override
-     public void crear(Usuario entidad) throws Exception {
-     String sql = "INSERT INTO usuario (username, email, activo, fechaRegistro, credencial_id) VALUES (?,?,?,?,?,?);";
+     public void crear(Usuario entidad, Connection conn) throws Exception {
+     String sql = "INSERT INTO usuario (username, email, activo, fechaRegistro, credencial_id) VALUES (?,?,?,?,?);";
     
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setLong(1, entidad.getId());
-            ps.setString(2, entidad.getUsuario());
-            ps.setString(3, entidad.getEmail());
-            ps.setBoolean(4, entidad.isActivo());
-            ps.setTimestamp(5, Timestamp.valueOf(entidad.getFechaRegistro()));
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, entidad.getUsuario());
+            ps.setString(2, entidad.getEmail());
+            ps.setBoolean(3, entidad.isActivo());
+            ps.setTimestamp(4, Timestamp.valueOf(entidad.getFechaRegistro()));
         
             if (entidad.getCredencial() != null && entidad.getCredencial().getId() > 0) {
-                ps.setLong(6, entidad.getCredencial().getId());
+                ps.setLong(5, entidad.getCredencial().getId());
             } else {
-                ps.setNull(6, java.sql.Types.INTEGER);
+                ps.setNull(5, java.sql.Types.INTEGER);
             }
 
             ps.executeUpdate();
@@ -45,10 +43,7 @@ public class UsuarioDao implements GenericDao<Usuario>{
     @Override
     public Usuario getById(long id) throws Exception {
         // Consulta con JOIN para obtener un usu y su credencial
-        String sql = "SELECT usu.id, usu.username, usu.credencial_id " + 
-                     "FROM usuario usu "+ 
-                     "LEFT JOIN credencialAcceso c ON usu.credencial_id = c.id " +
-                     "WHERE usu.id = ?";
+        String sql = "SELECT * FROM usuario WHERE id = ? AND eliminado = FALSE";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)){
             
@@ -58,7 +53,11 @@ public class UsuarioDao implements GenericDao<Usuario>{
                 if (rs.next()) {
                 Usuario usu = new Usuario();
                 usu.setId(rs.getLong("id"));
+                usu.setEliminado(rs.getBoolean("eliminado"));
                 usu.setUsuario(rs.getString("username"));
+                usu.setEmail(rs.getString("email"));
+                usu.setActivo(rs.getBoolean("activo"));
+                usu.setFechaRegistro(rs.getTimestamp("fechaRegistro").toLocalDateTime());
                 long credencialId = rs.getLong("credencial_id");  
                     if (credencialId > 0) {
                         CredencialAcceso c =  new CredencialAcceso();
@@ -80,7 +79,7 @@ public class UsuarioDao implements GenericDao<Usuario>{
     @Override
     public List<Usuario> getAll() throws Exception {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM usuario";
+        String sql = "SELECT * FROM usuario WHERE eliminado = FALSE";
         try(Connection conn = DatabaseConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery()) {
@@ -97,7 +96,7 @@ public class UsuarioDao implements GenericDao<Usuario>{
                 long credencialId = rs.getLong("credencial_id");  
                     if (credencialId > 0) {
                         CredencialAcceso c = new CredencialAcceso();
-                        c.setId(rs.getLong("id"));
+                        c.setId(credencialId);
                         usu.setCredencial(c);
                     } else {
                         usu.setCredencial(null);
@@ -115,12 +114,11 @@ public class UsuarioDao implements GenericDao<Usuario>{
     
     //Actualizar registro
     @Override
-    public void actualizar(Usuario entidad) throws Exception {
+    public void actualizar(Usuario entidad, Connection conn) throws Exception {
         // Actualiza todos los campos excepto el ID
         String sql = "UPDATE usuario SET username = ?, email = ?, activo = ?, fechaRegistro = ?, credencial_id = ? WHERE id = ?;";
     
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, entidad.getUsuario());
             ps.setString(2, entidad.getEmail());
@@ -148,10 +146,9 @@ public class UsuarioDao implements GenericDao<Usuario>{
     
     //Eliminador logico de usuario por id
     @Override
-    public void eliminar(long id) throws Exception {
+    public void eliminar(long id, Connection conn) throws Exception {
         String sql = "UPDATE usuario SET eliminado = TRUE WHERE id = ?;";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
              ps.setLong(1, id);
              ps.executeUpdate();
              

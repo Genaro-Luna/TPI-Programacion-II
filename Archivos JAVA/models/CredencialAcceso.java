@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 public class CredencialAcceso extends Base{
     
     // Atributos de la clase CredencialAcceso
-    private boolean eliminado;
     private String hashPassword;
     private String salt;
     private LocalDateTime ultimoCambio;
@@ -60,7 +59,7 @@ public class CredencialAcceso extends Base{
     
     @Override
     public String toString() {
-        return "CredencialAcceso{" + "id=" + getId() + ", eliminado=" + eliminado + ", hashPassword=" + hashPassword + ", salt=" + salt 
+        return "CredencialAcceso{" + "id=" + getId() + ", eliminado=" + isEliminado() + ", hashPassword=" + hashPassword + ", salt=" + salt 
                                    + ", ultimoCambio=" + ultimoCambio + ", requiereReset=" + requiereReset + '}';
     }
     

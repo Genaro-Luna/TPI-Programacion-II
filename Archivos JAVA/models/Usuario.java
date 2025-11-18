@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 public class Usuario extends Base{
     // Atributos de la clase Usuario
-    private boolean eliminado;
     private String email;
     private String usuario;
     private boolean activo;
@@ -69,7 +68,7 @@ public class Usuario extends Base{
 
     @Override
     public String toString() {
-        return "Usuario{" + "id=" + getId() + ", eliminado=" + eliminado + ", email=" + email + ", usuario=" + usuario + ", activo=" + activo + 
+        return "Usuario{" + "id=" + getId() + ", eliminado=" + isEliminado() + ", email=" + email + ", usuario=" + usuario + ", activo=" + activo + 
                             ", fechaRegistro=" + fechaRegistro + ", credencial=" + credencial + '}';
     }
    

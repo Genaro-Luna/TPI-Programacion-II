@@ -8,7 +8,7 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/tpi"; // URL para conectar la base de datos MySQL y la base llamada tpi
     private static final String USER = "root"; // Nombre del usuario
-    private static final String PASS = "admin"; // Contraseña del usuario
+    private static final String PASS = ""; // Contraseña del usuario
     
     // Bloque estático para cargar el driver JDBC una sola vez al iniciar la clase
     static {
@@ -23,7 +23,7 @@ public class DatabaseConnection {
     }
     public static Connection getConnection() throws SQLException {
         // Validación simple para evitar URLs o credenciales vacías
-        if (URL == null || URL.isEmpty() || USER == null || USER.isEmpty() || PASS == null || PASS.isEmpty()) {
+        if (URL == null || URL.isEmpty() || USER == null || USER.isEmpty() || PASS == null) {
             throw new SQLException("Configuración de la base de datos incompleta o inválida");
         }
         // Si la configuracion de la base de datos esta todo correcto,

@@ -35,25 +35,18 @@ public class UsuarioService extends BaseSv implements GenericService<Usuario>{
             // 2. Iniciar la transacción manualmente
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
-
             // 3. Ejecutar las operaciones (pasando la MISMA conexión)
-            
             // Paso A: Crear el usuario (esto genera el ID)
             usuarioDao.crear(user, conn); 
-
             // Paso B: Asignar el ID generado a la credencial
             credencial.setId(user.getId());
-
             // Paso C: Crear la credencial
             credencialDao.crear(credencial, conn);
-
             // Paso D: Actualizar el usuario para vincular credencial_id
             user.setCredencial(credencial);
             usuarioDao.actualizar(user, conn);
-
             // 4. Si todo salió bien, confirmar
             conn.commit();
-
         } catch (Exception e) {
             // 5. Si algo falló, revertir
             if (conn != null) {
